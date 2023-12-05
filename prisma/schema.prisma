@@ -1,0 +1,162 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique @db.VarChar(255)
+  name      String   @db.VarChar(255)
+  lastName  String   @db.VarChar(255)
+  password  String   @db.VarChar(255)
+  type     String   @db.VarChar(255) @default("user")
+  verified  Boolean  @default(false)
+  active    Boolean  @default(true)
+  wallet_balance Float @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  verificationEmail VerificationEmail[]
+  resetPasswordToken ResetPassword[]
+  vehicles Vehicle[]
+  // trips Trip[]
+  tripsAsClient Trip[] @relation("TripClient")
+  tripsAsDriver Trip[] @relation("TripDriver")
+  // transacciones de la billetera
+  transactionsWallet TransactionWallet[]
+  // recargas de dinero
+  moneyRecharges MoneyRecharge[]
+  // cuentas bancarias
+  bankAccounts BankAccount[]
+  // ubicaciones
+  locations Location[]
+}
+
+model VerificationEmail {
+  id        Int      @id @default(autoincrement())
+  userId    Int      
+  user      User     @relation(fields: [userId], references: [id])
+  token     String   @db.VarChar(255)
+  createdAt DateTime @default(now())
+}
+
+model ResetPassword {
+  id        Int      @id @default(autoincrement())
+  userId    Int      
+  user      User     @relation(fields: [userId], references: [id])
+  token     String   @db.VarChar(255)
+  createdAt DateTime @default(now())
+}
+
+// Vehiculos de un chofer
+model Vehicle {
+  id        Int      @id @default(autoincrement())
+  userId    Int?
+  user      User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  brand     String   @db.VarChar(255)
+  model     String   @db.VarChar(255)
+  year      String   @db.VarChar(255)
+  color     String   @db.VarChar(255)
+  plate     String   @db.VarChar(255)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  // Viajes realizados con el vehiculo
+  trips Trip[]
+}
+
+// Viajes
+model Trip {
+  id        Int      @id @default(autoincrement())
+  clientId  Int?
+  client    User?     @relation(fields: [clientId], references: [id], onDelete: SetNull, name: "TripClient")
+  driverId  Int?
+  driver    User?     @relation(fields: [driverId], references: [id], onDelete: SetNull, name: "TripDriver")
+  vehicleId Int?
+  vehicle   Vehicle?  @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
+  // dato de tipo Point
+  origin   Unsupported("point")
+  originAddress String @db.VarChar(255)
+  // dato de tipo Point
+  destination   Unsupported("point")
+  destinationAddress String @db.VarChar(255)
+  status    String   @db.VarChar(255) @default("pending")
+  // precio del viaje
+  priceBs   Float    @default(0)
+  priceUsd  Float    @default(0)
+  // distancia del viaje
+  distance  Float    @default(0)
+  createdAt DateTime @default(now())
+  beginAt   DateTime?
+  endAt     DateTime?
+}
+
+model TransactionWallet {
+  id        Int      @id @default(autoincrement())
+  userId    Int?
+  user      User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  type      String   @db.VarChar(255) @default("deposit")
+  amount    Float    @default(0)
+  reference String   @db.VarChar(255)
+  status    String   @db.VarChar(255) @default("pending")
+  bankAccountId Int?
+  bankAccount   BankAccount?  @relation(fields: [bankAccountId], references: [id], onDelete: SetNull)
+  createdAt DateTime @default(now())
+}
+
+model MoneyRecharge {
+  id        Int      @id @default(autoincrement())
+  userId    Int?
+  user      User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  type      String   @db.VarChar(255) @default("deposit")
+  amount    Float    @default(0)
+  reference String   @db.VarChar(255)
+  originBankId Int?
+  originBank   Bank?  @relation(fields: [originBankId], references: [id], onDelete: SetNull)
+  createdAt DateTime @default(now())
+}
+
+// Data Bank 
+model Bank {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(255)
+  code      String   @db.VarChar(255)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  moneyRecharges MoneyRecharge[]
+  bankAccounts BankAccount[]
+}
+
+model BankAccount {
+  id        Int      @id @default(autoincrement())
+  userId    Int?
+  user      User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  bankId    Int?
+  bank      Bank?     @relation(fields: [bankId], references: [id], onDelete: SetNull)
+  accountNumber String @db.VarChar(255)
+  accountType String   @db.VarChar(255)
+  id_number String   @db.VarChar(255)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  transactionsWallet TransactionWallet[]
+}
+
+// Ubicacion de un usuario
+model Location {
+  id        Int      @id @default(autoincrement())
+  userId    Int?
+  user      User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  // dato de tipo Point
+  location   Unsupported("point")
+  address String @db.VarChar(255)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

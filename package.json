@@ -1,0 +1,28 @@
+{
+  "name": "taximetro_backend",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "dev": "nodemon"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.6.0",
+    "bcrypt": "^5.1.1",
+    "compression": "^1.7.4",
+    "dotenv": "^16.3.1",
+    "esbuild": "^0.19.8",
+    "esbuild-node-tsc": "^2.0.5",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.2",
+    "nodemon": "^3.0.2",
+    "prisma": "^5.6.0",
+    "typescript": "^5.3.2"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/compression": "^1.7.5",
+    "@types/express": "^4.17.21",
+    "@types/jsonwebtoken": "^9.0.5"
+  }
+}
