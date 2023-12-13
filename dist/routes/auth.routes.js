@@ -25,4 +25,8 @@ var import_express = require("express");
 var import_auth = require("../controllers/auth.controllers");
 const authRouter = (0, import_express.Router)();
 authRouter.post("/login", import_auth.Login);
+authRouter.post("/signup-client", import_auth.SignupClient);
+authRouter.post("/verify-email", import_auth.VerifyEmail);
+authRouter.post("/forgot-password", import_auth.ForgotPassword);
+authRouter.post("/reset-password", import_auth.ResetPassword);
 var auth_routes_default = authRouter;
